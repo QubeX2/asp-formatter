@@ -1,7 +1,8 @@
 {
 	"name": "asp-formatter",
 	"displayName": "asp-formatter",
-	"description": "Classic ASP Formatter for VSCode",
+    "description": "Classic ASP Formatter for VSCode",
+    "publisher": "QubeX2",
 	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.42.0"
