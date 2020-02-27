@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import AspFactory from './asp';
 import { exists } from 'fs';
 
 // this method is called when your extension is activated
@@ -18,126 +19,65 @@ export function activate(context: vscode.ExtensionContext) {
             const { document } = activeTextEditor;
             const edit = new vscode.WorkspaceEdit();
             let indent: number = 0, isAsp: boolean = false;
+            let af = new AspFactory(document, edit);
 
-            let indenters = [
-                'if',
-                'do while',
-                'select case',
-                'while',
-                'for'
-            ]
+            while(!af.isLastLine()) {
 
-            let outdenters = [
-               'end if',
-               'loop',
-               'end select',
-               'wend',
-               'next'
-            ]
-
-            let skips = [
-                'else', 
-                'elseif'
-            ]
-
-
-
-            for (let i = 0; i < document.lineCount; i++) {
-
-                if(i == 384) {
-                    let n = 0;
-                }
-
-                let line = document.lineAt(i);
-                const n: string = line.text;
-
-                if (n.indexOf('<%') != -1) {
+                if(af.isStartSymbol()) {
                     isAsp = true;
                 }
 
+                if(!isAsp) {
+                    af.trimLine();
+                    af.indent(indent);
+                    af.next();
+                    continue;
+                }
+
                 if(isAsp) {
-                    let canIndent: boolean = false;
-
                     // trim string to begin with
-                    edit.replace(document.uri, line.range, n.trim());
+                    af.trimLine();
 
-
-                    if(n.match(/^\s*[']|\s*<%\s*[']/gi)) {
-                        if(n.indexOf('%>') != -1) {
+                    if(af.isComment()) {
+                        if(af.isEndSymbol()) {
                             isAsp = false;
                         }
+                        af.indent(indent);
+                        af.next();
                         continue;
                     }
 
                     // indenters
-                    for(const indenter of indenters) {
-                        const re = new RegExp(`^\\s*<%\\s+${indenter}|^\\s*${indenter}`, 'gi');
-                        if(n.match(re)) {
-                            if(indenter == 'if') {
-                                if(n.toLocaleLowerCase().indexOf('end if') == -1) {
-                                    if(n.match(/then\s*$|then\s*%>$/gi)) {
-                                        canIndent = true;
-                                    } else {
-                                        // special case comment after eg: Then 'comment
-                                        if(n.match(/then\s*['].*/gi)) {
-                                            canIndent = true;
-                                        } else {
-                                            // special case thingy, fix
-                                        }
-                                    }
-                                }
-                            } else {
-                                canIndent = true;
-                            }
-                            if(canIndent) {
-                                indent++;
-                            }
-                            break;
-                        }
-                    }
-
-                    if(canIndent) {
+                    if(af.isIndenter()) {
+                        af.indent(indent);
+                        indent++;
+                        af.next();
                         continue;
                     }
 
                     // skips
-                    let doSkip: boolean = false;
-                    for(const skip of skips) {
-                        const re = new RegExp(`^\\s*<%\\s+${skip}|^\\s*${skip}`, 'gi');
-                        if(n.match(re)) {
-                            edit.insert(document.uri, line.range.start, ' '.repeat(4 * (indent-1)));
-                            doSkip = true;
-                            break;
-                        }
-                    }
-
-                    if(doSkip) {
+                    if(af.isSkip()) {
+                        af.indent(indent - 1);
+                        af.next();
                         continue;
                     }
 
                     // outdenters
-                    for(const outdenter of outdenters) {
-                        const re = new RegExp(`^\\s*<%\\s+${outdenter}|^\\s*${outdenter}`, 'gi');
-                        if(n.match(re)) {
-                            indent--;
-                            break;
-                        }
+                    if(af.isOutdenter()) {
+                        indent--;
                     }
 
-                    edit.insert(document.uri, line.range.start, ' '.repeat(4 * indent));
-                    vscode.workspace.applyEdit(edit);
+                    af.indent(indent);
                 }
 
                 // check if end asp
-                if(n.indexOf('%>') != -1) {
+                if(af.isEndSymbol()) {
                     isAsp = false;
                 }
+                af.next();
             }
+            vscode.workspace.applyEdit(edit);
         }
-
-
-        // Display a message box to the user
-        //vscode.window.showInformationMessage('Running asp-format!');
     });
 
     context.subscriptions.push(disposable);
