@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
             let indent: number = 0, isAsp: boolean = false;
             let af = new AspFactory(document, edit);
 
-            while(!af.isLastLine()) {
+            while(!af.next()) {
 
                 if(af.isStartSymbol()) {
                     isAsp = true;
@@ -30,7 +30,6 @@ export function activate(context: vscode.ExtensionContext) {
                 if(!isAsp) {
                     af.trimLine();
                     af.indent(indent);
-                    af.next();
                     continue;
                 }
 
@@ -43,7 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
                             isAsp = false;
                         }
                         af.indent(indent);
-                        af.next();
                         continue;
                     }
 
@@ -51,20 +49,22 @@ export function activate(context: vscode.ExtensionContext) {
                     if(af.isIndenter()) {
                         af.indent(indent);
                         indent++;
-                        af.next();
                         continue;
                     }
 
                     // skips
                     if(af.isSkip()) {
                         af.indent(indent - 1);
-                        af.next();
                         continue;
                     }
 
                     // outdenters
                     if(af.isOutdenter()) {
                         indent--;
+                        // ugly fix
+                        if(indent < 0) {
+                            indent = 0;
+                        }
                     }
 
                     af.indent(indent);
@@ -74,7 +74,6 @@ export function activate(context: vscode.ExtensionContext) {
                 if(af.isEndSymbol()) {
                     isAsp = false;
                 }
-                af.next();
             }
             vscode.workspace.applyEdit(edit);
         }

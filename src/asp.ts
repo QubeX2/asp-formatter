@@ -24,18 +24,21 @@ export default class AspFactory {
         'case else'
     ];
 
-    currentIndex: number = 0;
+    currentIndex: number = -1;
     line: any;
 
     constructor(public document: TextDocument, public edit: WorkspaceEdit) {
-        this.line = this.getLine();
     }
 
     private getLine() {
-        if(!this.isLastLine()) {
+        if(!this.isLastLine() && this.currentIndex >= 0) {
             return this.document.lineAt(this.currentIndex);
         }    
         null;    
+    }
+
+    private isLastLine() {
+        return this.currentIndex < this.document.lineCount ? false : true;
     }
 
     trimLine() {
@@ -50,21 +53,18 @@ export default class AspFactory {
         }
     }
 
-    isLastLine() {
-        return this.currentIndex < this.document.lineCount ? false : true;
-    }
-
     next() {
         this.currentIndex++;
         this.line = this.getLine();
+        return this.isLastLine();
     }
 
     isStartSymbol() {
-        return this.line !== null ? this.line.text.indexOf('<%') != -1  : false;
+        return this.line !== null ? this.line.text.indexOf('<%') !== -1  : false;
     }
 
     isEndSymbol() {
-        return this.line !== null ? this.line.text.indexOf('%>') != -1 : false;
+        return this.line !== null ? this.line.text.indexOf('%>') !== -1 : false;
     }
 
     isComment() {
@@ -72,22 +72,24 @@ export default class AspFactory {
     }
 
     isOutdenter() {
-        let canOutdent: boolean = false;
-        if(this.line === null) return false;
+        if(this.line === null) {
+            return false;
+        }
 
         for (const outdenter of this.outdenters) {
             const re = new RegExp(`^\\s*<%\\s+${outdenter}|^\\s*${outdenter}`, 'gi');
             if (this.line.text.match(re)) {
-                canOutdent = true;
-                break;
+                return true;
             }
         }
-        return canOutdent;
+        return false;
     }
 
     isSkip() {
         let doSkip: boolean = false;
-        if(this.line === null) return false;
+        if(this.line === null) {
+            return false;
+        }
 
         for (const skip of this.skips) {
             const re = new RegExp(`^\\s*<%\\s+${skip}|^\\s*${skip}`, 'gi');
@@ -100,32 +102,24 @@ export default class AspFactory {
     }
 
     isIndenter() {
-        let canIndent: boolean = false;
-        if(this.line === null) return false;
+        if(this.line === null) {
+            return false;
+        }
 
         for (const indenter of this.indenters) {
             const re = new RegExp(`^\\s*<%\\s+${indenter}|^\\s*${indenter}`, 'gi');
             if (this.line.text.match(re)) {
-                if (indenter == 'if') {
-                    if (this.line.text.toLocaleLowerCase().indexOf('end if') == -1) {
-                        if (this.line.text.match(/then\s*$|then\s*%>$/gi)) {
-                            canIndent = true;
-                        } else {
-                            // special case comment after eg: Then 'comment
-                            if (this.line.text.match(/then\s*['].*/gi)) {
-                                canIndent = true;
-                            } else {
-                                // special case thingy, fix
-                            }
-                        }
+                if (indenter === 'if') {
+                    if(!this.line.text.match(/end if/gi)) {
+                        return true;
                     }
                 } else {
-                    canIndent = true;
+                    return true;
                 }
                 break;
             }
         }
-        return canIndent;
+        return false;
     }
 
 }
