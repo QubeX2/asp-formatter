@@ -79,7 +79,7 @@ export default class AspFactory {
         }
 
         for (const outdenter of this.outdenters) {
-            const re = new RegExp(`^\\s*<%\\s+${outdenter}|^\\s*${outdenter}`, 'gi');
+            const re = new RegExp(`^\\s*<%\\s*${outdenter}|^\\s*${outdenter}`, 'gi');
             if (this.line.text.match(re)) {
                 return true;
             }
@@ -94,7 +94,7 @@ export default class AspFactory {
         }
 
         for (const skip of this.skips) {
-            const re = new RegExp(`^\\s*<%\\s+${skip}|^\\s*${skip}`, 'gi');
+            const re = new RegExp(`^\\s*<%\\s*${skip}|^\\s*${skip}`, 'gi');
             if (this.line.text.match(re)) {
                 doSkip = true;
                 break;
@@ -109,7 +109,7 @@ export default class AspFactory {
         }
 
         for (const indenter of this.indenters) {
-            const re = new RegExp(`^\\s*<%\\s+${indenter}|^\\s*${indenter}`, 'gi');
+            const re = new RegExp(`^\\s*<%\\s*${indenter}|^\\s*${indenter}`, 'gi');
             if (this.line.text.match(re)) {
                 if (indenter === 'if') {
                     if(!this.line.text.match(/end if/gi)) {

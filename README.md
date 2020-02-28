@@ -35,6 +35,6 @@ readable.
 
 See CHANGELOG
 
-### 1.0.2
+### 1.0.3
 
 **Enjoy!**
