@@ -6,7 +6,8 @@ export default class AspFactory {
         'do while',
         'select case',
         'while',
-        'for'
+        'for',
+        'function'
     ];
 
     outdenters: Array<string> = [
@@ -14,7 +15,8 @@ export default class AspFactory {
         'loop',
         'end select',
         'wend',
-        'next'
+        'next',
+        'end function'
     ];
 
     skips: Array<string> = [

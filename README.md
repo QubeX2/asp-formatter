@@ -15,7 +15,6 @@ Install vsce: `npm install -g vsce`
 
 Generates a VSIX file that you can install from extensions in vscode.
 
-
 ## Usage
 
 CMD/CTRL + P -> ASP Format
@@ -32,6 +31,10 @@ Formats classic ASP code.
 Doesn't format HTML and JavaScript. Just tries to make ASP a little more
 readable.
 
-### 1.0.1
+## Changes
+
+See CHANGELOG
+
+### 1.0.2
 
 **Enjoy!**
