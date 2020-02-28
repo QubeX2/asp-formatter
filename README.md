@@ -7,6 +7,6 @@ Email: qubex2@gmail.com
 
 Formats classic ASP code.
 
-### 1.0.0
+### 1.0.1
 
 **Enjoy!**
