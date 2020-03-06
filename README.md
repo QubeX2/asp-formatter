@@ -22,7 +22,7 @@ CMD/CTRL + P -> ASP Format
 ## Background
 
 For a project I'm working on I needed a quick way to format left justified
-readable code in ASP. So I made this extension for that. 
+unreadable ASP code. So I made this extension for that. 
 
 ## Features
 
