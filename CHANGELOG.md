@@ -12,6 +12,3 @@ Minor fix
 Release
 
 
-## [Unreleased]
-
-- Initial release
