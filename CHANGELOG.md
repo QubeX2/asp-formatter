@@ -1,4 +1,7 @@
 # Change Log
+**v1.0.4**
+Fixed issue on github
+
 **v1.0.3**
 Bugfix
 

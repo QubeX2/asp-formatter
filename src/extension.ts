@@ -29,6 +29,18 @@ export function activate(context: vscode.ExtensionContext) {
 
                 if(!isAsp) {
                     af.trimLine();
+                    /*
+                    if(af.isHtmlIndenter()) {
+                        af.indent(indent);
+                        indent++;
+                        continue;
+                    } else if(af.isHtmlOutdenter()) {
+                        indent--;
+                        if(indent < 0) { indent = 0; }
+                    } else {
+                        af.indent(indent);
+                    }
+                    */
                     af.indent(indent);
                     continue;
                 }
@@ -45,6 +57,12 @@ export function activate(context: vscode.ExtensionContext) {
                         continue;
                     }
 
+                    // skips
+                    if(af.isSkip()) {
+                        af.indent(indent - 1);
+                        continue;
+                    }
+
                     // indenters
                     if(af.isIndenter()) {
                         af.indent(indent);
@@ -52,19 +70,11 @@ export function activate(context: vscode.ExtensionContext) {
                         continue;
                     }
 
-                    // skips
-                    if(af.isSkip()) {
-                        af.indent(indent - 1);
-                        continue;
-                    }
-
                     // outdenters
                     if(af.isOutdenter()) {
                         indent--;
                         // ugly fix
-                        if(indent < 0) {
-                            indent = 0;
-                        }
+                        if(indent < 0) { indent = 0; }
                     }
 
                     af.indent(indent);

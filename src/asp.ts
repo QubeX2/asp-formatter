@@ -1,9 +1,34 @@
 import { TextDocument, WorkspaceEdit, TextLine } from "vscode";
 
 export default class AspFactory {
+    htmlIndenters: Array<string> = [
+        'form',
+        'div',
+        'ul',
+        'li',
+        'select',
+        'table',
+        'tr',
+        'td',
+        'a',
+    ];
+
+    htmlOutdenters: Array<string> = [
+        'form',
+        'div',
+        'ul',
+        'li',
+        'select',
+        'table',
+        'tr',
+        'td',
+        'a',
+    ];
+
     indenters: Array<string> = [
         'if',
         'do while',
+        'do until',
         'select case',
         'while',
         'for',
@@ -16,7 +41,7 @@ export default class AspFactory {
         'end select',
         'wend',
         'next',
-        'end function'
+        'end function',
     ];
 
     skips: Array<string> = [
@@ -103,6 +128,35 @@ export default class AspFactory {
         return doSkip;
     }
 
+    isHtmlOutdenter() {
+        if(this.line === null) {
+            return false;
+        }
+
+        for (const outdenter of this.htmlOutdenters) {
+            const re = new RegExp(`^\\s*<\/${outdenter}>`, 'gi');
+            if (this.line.text.match(re)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    isHtmlIndenter() {
+        if(this.line === null) {
+            return false;
+        }
+
+        for (const indenter of this.htmlIndenters) {
+            const re = new RegExp(`<${indenter}`, 'gi');
+            var d = this.line.text.match(re);
+            if (this.line.text.match(re) && !this.line.text.match(`/<\/${indenter}>/gi`)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     isIndenter() {
         if(this.line === null) {
             return false;
@@ -112,7 +166,7 @@ export default class AspFactory {
             const re = new RegExp(`^\\s*<%\\s*${indenter}|^\\s*${indenter}`, 'gi');
             if (this.line.text.match(re)) {
                 if (indenter === 'if') {
-                    if(!this.line.text.match(/end if/gi)) {
+                    if(!this.line.text.match(/end if/gi) && !this.line.text.match(/then\s+[a-z0-9=]+/gi)) {
                         return true;
                     }
                 } else {
